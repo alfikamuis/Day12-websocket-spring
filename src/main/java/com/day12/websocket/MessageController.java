@@ -21,7 +21,7 @@ public class MessageController {
     @SendTo("/topic/messages")
     public Messages sendMessages(Users users) throws InterruptedException {
         Thread.sleep(1000);
-        return new Messages("Hello,"+ HtmlUtils.htmlEscape(users.getName()));
+        return new Messages(HtmlUtils.htmlEscape(users.getName())+ ": ");
     }
 
     @MessageMapping("/stomp-endpoint/{to}")

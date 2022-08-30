@@ -1,13 +1,7 @@
 package com.day12.websocket;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.apache.catalina.User;
-
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-
 public class UserStorage {
     private static UserStorage instance;
     private Set<String> users;
