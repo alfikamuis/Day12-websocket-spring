@@ -1,6 +1,7 @@
 # Day12-Websocket-spring
  Simple websocket implementation, non chache.
- -Target: chat history loaded for every selected user (private room) 
+ 
+ -future target : chat history loaded for every selected user (private room) (buggy)
  
 # user connect first and register one name. Hit refresh button to filter online member
  ![image](https://user-images.githubusercontent.com/38674801/187689413-532c9a91-7d4a-46b2-ba64-345f6159fbdb.png)
