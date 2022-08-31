@@ -1,6 +1,9 @@
-var stompClient = null;
-let url= 'http://localhost:8080'
+let stompClient;
+let url= 'http://localhost:8080';
 let selectedUser;
+let userName;
+let newMessages = new Map();
+
 
 //V2
 function connectToChat(userName) {
@@ -8,11 +11,12 @@ function connectToChat(userName) {
     let socket = new SockJS(url + '/stomp-endpoint');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
+        setConnected(true);
         console.log("connected to: " + frame);
         stompClient.subscribe("/topic/messages/" + userName, function (response) {
             let data = JSON.parse(response.body);
             if (selectedUser === data.fromLogin) {
-                showGreeting(data.message, data.fromLogin);
+                render(data.message, data.fromLogin);
             } else {
                 newMessages.set(data.fromLogin, data.message);
                 $('#userNameAppender_' + data.fromLogin).append('<span id="newMessage_' + data.fromLogin + '" style="color: red">+1</span>');
@@ -21,20 +25,44 @@ function connectToChat(userName) {
     });
 }
 
+function showMessageOutput(messageOutput) {
+    var response = document.getElementById('response');
+    var p = document.createElement('p');
+    p.appendChild(document.createTextNode(messageOutput.fromLogin + ": " 
+      + messageOutput.message ));
+    response.appendChild(p);
+}
+function render(message, userName) {
+    // responses
+    $("#name").append("<tr><td>"+ userName + "</td></tr>");
+    $("#greetings").append("<tr><td>"+ message + "</td></tr>");
+}
 
-function sendMessage(from,text){
-    stompClient.send("/app/stomp-endpoint/"+selectedUser,{},JSON.stringify({
-        fromlogin: from,
-        message: text
-    }));
+function addMessage() {
+    var message = document.getElementById('theMessages').value;
+    sendMessage(message);
+}
+
+function sendMessage(message) {
+    username = userName;
+    console.log(username)
+    sendMsg(username, message);
+    $("#greetings").append("<tr><td>"+ username + ": "+ message + "</td></tr>");
+}
+
+
+function sendMsg(username, message){ //to sendMessage
+    var message = document.getElementById('theMessages').value;
+    stompClient.send("/app/stomp-endpoint/"+selectedUser,{},JSON.stringify({ message:message, fromLogin:username }));
+
 }
 
 function registration(){
-    let userName = document.getElementById("name").value;
+    userName = document.getElementById("name").value;
     $.get(url+"/registration/"+userName ,function (response) {
     }).fail(function (error){
         if(error.status === 400){
-            alert("login already busy!")
+            alert("username already used!")
         }    
     })
 }
@@ -73,6 +101,7 @@ function fetchAll(){
 function setConnected(connected) {
     $("#connect").prop("disabled", connected);
     $("#disconnect").prop("disabled", !connected);
+    document.getElementById('response').innerHTML = '';
     if (connected) {
         $("#conversation").show();
     }
@@ -82,7 +111,7 @@ function setConnected(connected) {
     $("#greetings").html("");
 }
 
-function connect() { //login first
+/*function connect() { //login first
     var socket = new SockJS('/stomp-endpoint');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
@@ -93,6 +122,7 @@ function connect() { //login first
         });
     });
 }
+*/
 
 function disconnect() {
     if (stompClient !== null) {
@@ -102,19 +132,11 @@ function disconnect() {
     console.log("Disconnected");
 }
 
-function sendName() {
-    stompClient.send("/app/sayHi", {}, JSON.stringify({'name': $("#name").val()}));
-}
-
-function showGreeting(message,fromLogin) { //render message
-    $("#greetings").append("<tr><td>"+fromLogin +": " + message + "</td></tr>");
-}
-
 $(function () {
     $("form").on('submit', function (e) {
         e.preventDefault();
     });
-    $( "#connect" ).click(function() { connect(); });
+    $( "#connect" ).click(function() { connectToChat(); });
     $( "#disconnect" ).click(function() { disconnect(); });
-    $( "#send" ).click(function() { sendName(); });
+    $( "#send" ).click(function() { sendMessage(); });
 });
