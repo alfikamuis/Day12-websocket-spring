@@ -24,8 +24,9 @@ public class MessageController {
      */
 
     @MessageMapping("/stomp-endpoint/{to}")
-    public void sendMessageTo(@DestinationVariable String to, Messages messages) {
+    public void sendMessageTo(@DestinationVariable String to, Messages messages) throws InterruptedException {
         System.out.println("Handling send messages: "+messages+" to "+to);
+        Thread.sleep(1000);
         boolean isExist =  UserStorage.getInstance().getUsers().contains(to);
         if(isExist){
             simpMessagingTemplate.convertAndSend("/topic/messages/"+to,messages);
