@@ -9,7 +9,7 @@ public class ServerController {
 
     @MessageMapping("/process-message")
     @SendTo("/topic/messages")
-    public Message theMessage(Sender sender) throws InterruptedException {
+    public Message theMessage(Sender sender) throws Exception {
         Thread.sleep(1000);
         return new Message(sender.getName()+" : ");
     }
